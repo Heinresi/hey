@@ -1,7 +1,174 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Araba Özellikleri</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="importmap">
+  {
+    "imports": {
+      "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js"
+    }
+  }
+</script>
+</head>
 <body>
-<h1>Hello World</h1>
-<p>I'm hosted with GitHub Pages.</p>
+
+<div id="app" class="flex flex-col h-screen">
+    <div class="flex flex-row justify-evenly bg-blue-900 text-white flex justify-center py-4">
+        <p class="bg-blue-300 rounded p-2">{{topu}}</p>
+        <p class="bg-blue-300 rounded p-2">{{topbu}}</p>
+        <p class="bg-blue-300 rounded p-2">{{topp}}</p>
+        <p class="bg-blue-300 rounded p-2">{{topb}}</p>
+    </div>
+    <div class="flex-1 overflow-y-auto bg-slate-900">
+        <div class="container">
+            <div :class="{'scrollable-content': true, 'hidden': sayfa == 1 || sayfa == 2}">
+                <div v-for="car in cars" :key="car.id" class="bg-slate-800 text-white h-32 relative my-1 w-full">
+                    <p class="absolute top-2 left-2">{{car.isim}}</p>
+                    <p class="absolute bottom-2 left-2">Lv. {{car.level}}</p>
+                    <p class="absolute bottom-2 left-1/2 -translate-x-1/2">{{car.ure}}</p>
+                    <button @click="ya(car)" class="absolute right-2 top-1/2 -translate-y-1/2 p-3 rounded bg-amber-500">{{"Yükselt " + car.yuks}}</button>
+                </div>
+            </div>
+            <div :class="{'scrollable-content': true, 'hidden': sayfa == 0 || sayfa==2}">
+                <div v-for="adam in adams" :key="adam.id" class="bg-slate-800 h-32 text-white relative my-1 w-full">
+                    <div class="absolute w-24 h-24 left-2 top-1/2 -translate-y-1/2 bg-indigo-300">
+                        <p class="absolute left-1/2 -translate-x-1/2 -bottom-3 whitespace-nowrap">Lv. {{adam.level}}</p>
+                    </div>
+                    <p class="absolute left-28 top-3">{{adam.aktif == true ? adam.isim : "???"}}</p>
+                    <p class="absolute left-1/2 -translate-x-1/2 bottom-2">{{adam.aktif == false ? "??" : adam.uretim + "/sec"}}</p>
+                    <button @Click="bilim_adami_buton(adam)" class="absolute right-2 top-1/2 -translate-y-1/2 p-3 bg-amber-500 rounded">Train</button>
+                </div>
+            </div>
+            <div :class="{'scrollable-content': true, 'hidden': sayfa == 0 || sayfa==1}">
+                <div v-for="ara in aras" :key="ara.id" class="bg-slate-800 h-32 text-white relative my-1 w-full">
+                    <p class="absolute top-2 left-2">{{ara.isim}}</p>
+                    <div class="bottom-1 absolute w-full bg-red-200">
+                        <div :style="{width: ara.durum + '%'}" class="h-2 bg-blue-500"></div>
+                    </div>
+                    <button class="absolute right-2 top-1/2 -translate-y-1/2 bg-amber-500 p-3 rounded">Araştır</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bg-blue-900 flex  justify-evenly text-white py-4">
+        <button @Click="sayf(0)" class="bg-blue-300 rounded p-2">Üniversiteler</button>
+        <button @Click="sayf(1)" class="bg-blue-300 rounded p-2">Bilim İnsanları</button>
+        <button @Click="sayf(2)" class="bg-blue-300 rounded p-2">Araştırmalar</button>
+    </div>
+</div>
+
+<script type="module">
+    import { createApp } from 'vue'
+    createApp({
+        data() {
+            return {
+                cars: [
+                    { id: 1, isim: 'Üniversite', level: 1, ure: 0, car: 1, aktif: false, yuks: 100}                
+                                ],
+                adams: [
+                    {id: 1, isim: "Bilim insanının ismi", level: 1, uretim: 100, yukseltme: 200, aktif: false}
+                ],
+                aras: [
+                    {id: 1, isim: "Canlılar", durum:2}
+                ],
+                newCarId: 1,
+                newBilim: 2,
+                topu: 0,
+                topbu: 0,
+                topp: 100,
+                topb: 0,
+                sayfa: 0
+            };
+        },
+        mounted() { 
+            setInterval(() => { 
+                    this.topp += this.topu;
+                    this.topb += this.topbu;
+                }, 100);
+        },
+        methods: {
+            addCar() {
+                if((this.newCarId + 1) % 2 == 0){
+                const newSci = {
+                    id: this.newCarId++,
+                    isim: 'Araştırma',
+                    level: 1,
+                    ure: 0,
+                    car: 1,
+                    aktif: false,
+                    yuks: 100 * 8 * (this.newCarId - 1)
+                }
+                this.cars.push(newSci)
+                    this.topbu =this.topbu + newSci.ure;
+                } else {
+                const newCar = {
+                    id: this.newCarId++,
+                    isim: 'Üniversite',
+                    level: 1,
+                    ure: 0,
+                    car: 1,
+                    aktif: false,
+                    yuks: 100 * 8 * (this.newCarId - 1)
+                }
+                this.cars.push(newCar)
+                    this.topu =this.topu + newCar.ure;
+                }
+                
+            },
+            ya(ca) {
+                if(this.topp >= ca.yuks && ca.aktif == false) {
+                    ca.aktif = true;
+                    ca.ure = ca.id * 8;
+                    if(ca.isim == "Atolye") {
+                        this.topu += ca.ure;
+                    } else {
+                        this.topbu += ca.ure;
+                    }
+                    
+                    this.topp -= ca.yuks;
+                    this.addCar();
+                }
+                else if(this.topp >= ca.yuks && ca.aktif == true) {
+                ca.level += 1;
+                let arti = ca.ure * ca.car;
+                ca.ure = ca.ure + arti;
+                if(ca.isim == "Atolye") {
+                    this.topu += arti;
+                } else {
+                    this.topbu += arti;
+                }
+                this.topp -= ca.yuks;
+                ca.yuks = ca.yuks*5;
+            }},
+            sayf(s) {
+                if(s == 0) {
+                    this.sayfa = 0
+                } else if(s==1){
+                    this.sayfa = 1
+                } else {
+                    this.sayfa = 2
+                }
+            },
+            bilim_adami_buton(ada) {
+                if(ada.aktif == false) {
+                    ada.aktif = true;
+                    const ads = {id: this.newBilim++, isim: "Bilim adamının ismi",level: 1,uretim: 100, yukseltme: 200, aktif: false}
+                    this.adams.push(ads)
+                } else if(ada.aktif == true && this.topp >= ada.yukseltme) {
+                    ada.level += 1;
+                    let arti = ada.uretim * 2;
+                    ada.uretim = arti;
+                    this.topp -= ada.yukseltme;
+                    ada.yukseltme = ada.yukseltme * ada.id;
+                    
+                }
+            }
+        }
+    }).mount('#app');
+</script>
+
 </body>
 </html>
